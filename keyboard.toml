@@ -37,11 +37,11 @@ LCtrl LGui LAlt MO(2) Space Delete RAlt RGui MO(2) RCtrl
 [[layer]]
 name = "number_symbols" #optional name for the layer
 keys = """
-Transparent F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12 Transparent
-Transparent Transparent Transparent PageUp Transparent Transparent Transparent Transparent Up RNS Transparent Transparent Transparent Transparent
-Transparent Transparent Home PageDown End Transparent Transparent Left Down Right Transparent Transparent Transparent
-Transparent AudioMute AudioVolDown AudioVolUp MediaPrevTrack MediaNextTrack Transparent Transparent Transparent Transparent Transparent Transparent
-Transparent Transparent Transparent Transparent Transparent Transparent Transparent Transparent Transparent Transparent
+TRNS F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12 TRNS
+TRNS TRNS TRNS PageUp TRNS TRNS TRNS TRNS Up TRNS TRNS TRNS TRNS TRNS
+TRNS TRNS Home PageDown End TRNS TRNS Left Down Right TRNS TRNS TRNS
+TRNS AudioMute AudioVolDown AudioVolUp MediaPrevTrack MediaNextTrack TRNS TRNS TRNS TRNS TRNS TRNS
+TRNS TRNS TRNS TRNS TRNS TRNS TRNS TRNS TRNS TRNS
 """
 
 [ble]
