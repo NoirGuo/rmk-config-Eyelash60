@@ -1,0 +1,83 @@
+# Documentation: https://rmk.rs/docs/getting_started/introduction.html
+[keyboard]
+name = "Eyelash60"
+product_name = "Eyelash60"
+vendor_id = 0x4c4b
+product_id = 0x4643
+manufacturer = "Eyelash"
+chip = "nrf52840"
+
+[matrix]
+col_pins = ["P0_09", "P1_02", "P0_22", "P0_12", "P0_08", "P0_24", "P1_11", "P1_10", "P0_03", "P0_28", "P1_13", "P0_02", "P0_29", "P0_31"]
+row_pins = ["P0_30", "P0_10", "P1_06", "P1_09", "P0_05"]
+# row2col = true
+
+[layout]
+rows = 5
+cols = 14
+layers = 12
+matrix_map = """
+(0,0) (0,1) (0,2) (0,3) (0,4) (0,5) (0,6) (0,7) (0,8) (0,9) (0,10) (0,11) (0,12) (0,13)
+(1,0) (1,1) (1,2) (1,3) (1,4) (1,5) (1,6) (1,7) (1,8) (1,9) (1,10) (1,11) (1,12) (1,13)
+(2,0) (2,1) (2,2) (2,3) (2,4) (2,5) (2,6) (2,7) (2,8) (2,9) (2,10) (2,11) (2,12)
+(3,0) (3,1) (3,2) (3,3) (3,4) (3,5) (3,6) (3,7) (3,8) (3,9) (3,10) (3,11)
+(4,0) (4,1) (4,2) (4,3) (4,4) (4,5) (4,6) (4,7) (4,8) (4,9)
+"""
+
+[[layer]]
+name = "base_layer" #optional name for the layer
+keys = """
+Escape Kc1 Kc2 Kc3 Kc4 Kc5 Kc6 Kc7 Kc8 Kc9 Kc0 Minus Equal Backspace
+Tab Q W E R T Y U I O P LeftBracket RightBracket Backslash
+CapsLock A S D F G H J K L Semicolon Quote Enter
+LShift Z X C V B N M Comma Dot Slash RShift
+LCtrl LGui LAlt MO(2) Space Delete RAlt RGui MO(2) RCtrl
+"""
+
+[[layer]]
+name = "number_symbols" #optional name for the layer
+keys = """
+TRNS F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12 TRNS
+TRNS TRNS TRNS PageUp TRNS TRNS TRNS TRNS Up RNS TRNS TRNS TRNS TRNS
+TRNS TRNS Home PageDown End TRNS TRNS Left Down Right TRNS TRNS TRNS
+TRNS AudioMute AudioVolDown AudioVolUp MediaPrevTrack MediaNextTrack TRNS TRNS TRNS TRNS TRNS TRNS
+TRNS TRNS TRNS TRNS TRNS TRNS TRNS TRNS TRNS TRNS
+"""
+
+[ble]
+enabled = true
+battery_adc_pin = "vddh"
+# Set the BLE tx power; higher means better signal but more power consumption. For nRF52840 the maximum tx power is 8.
+default_tx_power = 8
+# Whether to enable 2M PHY, defaults to true.
+# use_2m_phy = true
+
+[storage]
+enabled = true
+
+[rmk]
+# Maximum number of combos keyboard can store
+combo_max_num = 10
+# Maximum number of keys pressed simultaneously in a combo
+combo_max_length = 4
+# The number of available BLE profiles
+ble_profiles_num = 5
+# Default debounce time in milliseconds  
+debounce_time = 3
+# BLE Split Central sleep timeout in seconds (0 = disabled)  
+split_central_sleep_timeout_seconds = 7200  # Set to your desired timeout
+# Macro space size in bytes for storing sequences. The maximum number of Macros depends on the size of each sequence: All sequences combined need to fit into macro_space_size, the number of macro sequences doesn't matter.
+macro_space_size = 2560
+
+[host]
+# Unlock combination: simultaneous press of specified keys
+# Format: [[row, col], [row, col], ...]
+unlock_keys = [[0, 0], [0, 1]]  # Keys at (row=0,col=0) and (row=0,col=1)
+
+[chip.nrf52840]  
+# 启用 DCDC 稳压器 0  
+dcdc_reg0 = true  
+# 启用 DCDC 稳压器 1    
+dcdc_reg1 = true  
+# 设置 DCDC 稳压器 0 电压  
+dcdc_reg0_voltage = "3V3"  # 选项: "3V3" 或 "1V8"
