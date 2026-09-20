@@ -51,6 +51,9 @@ cols = 0
 row_offset = 0
 col_offset = 0
 
+[split.central.matrix]
+matrix_type = "normal"
+
 [split.central.display]
 driver = "sh1106"
 size = "128x64"
