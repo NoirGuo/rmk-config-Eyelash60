@@ -46,15 +46,15 @@ connection = "ble"
 
 # Dongle (central) — no matrix, BLE-to-USB bridge with SH1106 display
 [split.central]
-rows = 1
-cols = 1
+rows = 0
+cols = 0
 row_offset = 0
 col_offset = 0
 
 [split.central.matrix]
 matrix_type = "normal"
-row_pins = ["P0_30"]
-col_pins = ["P0_09"]
+row_pins = []
+col_pins = []
 
 [split.central.display]
 driver = "sh1106"
