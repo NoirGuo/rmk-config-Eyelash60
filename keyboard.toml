@@ -44,7 +44,13 @@ TRNS TRNS TRNS TRNS TRNS TRNS TRNS TRNS TRNS TRNS
 [split]
 connection = "ble"
 
-# Dongle (central) — no matrix, BLE-to-USB bridge with SH1106 display
+# Dongle (central) — no matrix, BLE-to-USB bridge.
+#
+# The display is intentionally not described through RMK's built-in
+# `OledRenderer`: firmware/central.rs registers the external, allocation-free
+# rmk-dongle-display Bongo Cat processor instead.  Keeping this section free
+# of a `[split.central.display]` table prevents two processors from claiming
+# TWISPI0 at the same time.
 [split.central]
 rows = 0
 cols = 0
@@ -55,17 +61,6 @@ col_offset = 0
 matrix_type = "normal"
 row_pins = []
 col_pins = []
-
-[split.central.display]
-driver = "sh1106"
-size = "128x64"
-rotation = 0
-renderer = "OledRenderer"
-
-[split.central.display.protocol.i2c]
-instance = "I2C0"
-sda = "P0_17"
-scl = "P0_20"
 
 # Eyelash60 (peripheral) — full keyboard matrix
 [[split.peripheral]]
