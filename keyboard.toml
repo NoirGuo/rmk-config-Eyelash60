@@ -60,10 +60,10 @@ col_pins = []
 driver = "sh1106"
 size = "128x64"
 rotation = 0
-renderer = "LogoRenderer"
+renderer = "OledRenderer"
 
 [split.central.display.protocol.i2c]
-instance = "TWISPI0"
+instance = "I2C0"
 sda = "P0_17"
 scl = "P0_20"
 
