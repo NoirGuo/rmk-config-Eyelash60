@@ -110,6 +110,7 @@ pub struct BongoDisplay<'d> {
     oled: Sh1106<'d>,
     renderer: DongleDisplay,
     peripheral_connected: bool,
+    ble_connected: bool,
     initialized: bool,
     force_full: bool,
     animation_trigger: u16,
@@ -132,6 +133,7 @@ impl<'d> BongoDisplay<'d> {
             oled,
             renderer,
             peripheral_connected: false,
+            ble_connected: false,
             initialized: false,
             force_full: true,
             animation_trigger: 0,
@@ -151,6 +153,13 @@ impl<'d> BongoDisplay<'d> {
                 }
             }
         }
+
+        let output = if self.ble_connected {
+            OutputKind::Ble { profile: 0 }
+        } else {
+            OutputKind::Usb
+        };
+        self.renderer.apply(DisplayEvent::OutputChanged { output });
 
         if let Ok(rendered) = self.renderer.render(Instant::now().as_millis()) {
             let pages = if self.force_full {
@@ -214,6 +223,9 @@ impl<'d> BongoDisplay<'d> {
     }
 
     async fn on_connection_status_change_event(&mut self, event: ConnectionStatusChangeEvent) {
+        if self.peripheral_connected {
+            return;
+        }
         let output = match event.0.decide_active() {
             Some(ConnectionType::Ble) => OutputKind::Ble {
                 profile: event.0.ble.profile,
@@ -230,6 +242,7 @@ impl<'d> BongoDisplay<'d> {
     async fn on_peripheral_connected_event(&mut self, event: PeripheralConnectedEvent) {
         if event.id == 0 {
             self.peripheral_connected = event.connected;
+            self.ble_connected = event.connected;
             self.renderer.apply(DisplayEvent::ConnectionChanged {
                 state: if self.peripheral_connected {
                     LinkState::Connected
