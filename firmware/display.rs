@@ -4,13 +4,13 @@
 //! owns only panel I/O and RMK event mapping; transport, BLE state and display
 //! assets stay in their respective libraries.
 
-use dongle_display::display::{DisplayEvent, LinkState, OutputKind, PageMask, Size};
+use dongle_display::display::{BatterySource, DisplayEvent, LinkState, OutputKind, PageMask, Size};
 use dongle_display::{DongleDisplay, ModifierStyle};
 use embassy_nrf::twim::{self, Twim};
 use embassy_time::{Instant, Timer};
 use rmk::event::{
     ConnectionStatusChangeEvent, KeyboardEvent, LayerChangeEvent, LedIndicatorEvent, ModifierEvent,
-    PeripheralConnectedEvent, SleepStateEvent, WpmUpdateEvent,
+    PeripheralBatteryEvent, PeripheralConnectedEvent, SleepStateEvent, WpmUpdateEvent,
 };
 use rmk::macros::processor;
 use rmk::types::connection::ConnectionType;
@@ -101,7 +101,8 @@ impl<'d> Sh1106<'d> {
         ModifierEvent,
         SleepStateEvent,
         ConnectionStatusChangeEvent,
-        PeripheralConnectedEvent
+        PeripheralConnectedEvent,
+        PeripheralBatteryEvent
     ],
     poll_interval = 10
 )]
@@ -236,6 +237,30 @@ impl<'d> BongoDisplay<'d> {
                     LinkState::Searching
                 },
             });
+        }
+    }
+
+    async fn on_peripheral_battery_event(&mut self, event: PeripheralBatteryEvent) {
+        use rmk::types::battery::BatteryStatus;
+        match event.state.0 {
+            BatteryStatus::Available {
+                charge_state,
+                level,
+            } => {
+                if let Some(percent) = level {
+                    self.renderer.apply(DisplayEvent::BatteryChanged {
+                        source: BatterySource::Peripheral(event.id as u8),
+                        percent,
+                        charging: charge_state
+                            == rmk::types::battery::ChargeState::Charging,
+                    });
+                }
+            }
+            BatteryStatus::Unavailable => {
+                self.renderer.apply(DisplayEvent::BatteryUnavailable {
+                    source: BatterySource::Peripheral(event.id as u8),
+                });
+            }
         }
     }
 }
