@@ -54,7 +54,7 @@ embassy-executor = { version = "0.10", features = [
     "executor-thread",
 ] }
 
-dongle-display = { package = "rmk-dongle-display", git = "https://github.com/hitsmaxft/rmk-dongle-display", rev = "48c7f177e20d35fd62e1b2ab259f771c821a577e", default-features = false, features = ["bongo-cat"] }
+dongle-display = { package = "rmk-dongle-display", git = "https://github.com/hitsmaxft/rmk-dongle-display", rev = "48c7f177e20d35fd62e1b2ab259f771c821a577e", default-features = false, features = ["street-fighter"] }
 
 [build-dependencies]
 const-gen = "1.6"
