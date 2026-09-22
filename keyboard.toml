@@ -68,6 +68,7 @@ rows = 5
 cols = 14
 row_offset = 0
 col_offset = 0
+battery_adc_pin = "vddh"
 
 [split.peripheral.matrix]
 matrix_type = "normal"
@@ -76,7 +77,6 @@ col_pins = ["P0_09", "P1_02", "P0_22", "P0_12", "P0_08", "P0_24", "P1_11", "P1_1
 
 [ble]
 enabled = true
-battery_adc_pin = "vddh"
 # Set the BLE tx power; higher means better signal but more power consumption. For nRF52840 the maximum tx power is 8.
 default_tx_power = 8
 # Whether to enable 2M PHY, defaults to true.

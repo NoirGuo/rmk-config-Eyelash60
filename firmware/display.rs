@@ -4,13 +4,13 @@
 //! owns only panel I/O and RMK event mapping; transport, BLE state and display
 //! assets stay in their respective libraries.
 
-use dongle_display::display::{DisplayEvent, LinkState, OutputKind, PageMask, Size};
+use dongle_display::display::{BatterySource, DisplayEvent, LinkState, OutputKind, PageMask, Size};
 use dongle_display::{DongleDisplay, ModifierStyle};
 use embassy_nrf::twim::{self, Twim};
 use embassy_time::{Instant, Timer};
 use rmk::event::{
     ConnectionStatusChangeEvent, KeyboardEvent, LayerChangeEvent, LedIndicatorEvent, ModifierEvent,
-    PeripheralConnectedEvent, SleepStateEvent, WpmUpdateEvent,
+    PeripheralBatteryEvent, PeripheralConnectedEvent, SleepStateEvent, WpmUpdateEvent,
 };
 use rmk::macros::processor;
 use rmk::types::connection::ConnectionType;
@@ -101,7 +101,8 @@ impl<'d> Sh1106<'d> {
         ModifierEvent,
         SleepStateEvent,
         ConnectionStatusChangeEvent,
-        PeripheralConnectedEvent
+        PeripheralConnectedEvent,
+        PeripheralBatteryEvent
     ],
     poll_interval = 10
 )]
@@ -122,7 +123,7 @@ impl<'d> BongoDisplay<'d> {
         )
         .expect("128x64 is supported by rmk-dongle-display");
         renderer.apply(DisplayEvent::OutputChanged {
-            output: OutputKind::Usb,
+            output: OutputKind::Ble { profile: 0 },
         });
         renderer.apply(DisplayEvent::ConnectionChanged {
             state: LinkState::Searching,
@@ -150,6 +151,10 @@ impl<'d> BongoDisplay<'d> {
                 }
             }
         }
+
+        // OutputChanged (USB vs BLE to the host) is driven exclusively by
+        // `ConnectionStatusChangeEvent` (dongle↔PC link); do NOT override it
+        // here from the keyboard link state.
 
         if let Ok(rendered) = self.renderer.render(Instant::now().as_millis()) {
             let pages = if self.force_full {
@@ -213,11 +218,18 @@ impl<'d> BongoDisplay<'d> {
     }
 
     async fn on_connection_status_change_event(&mut self, event: ConnectionStatusChangeEvent) {
+        // decide_active() reports how the dongle is linked to the host:
+        // USB (plugged into the PC) vs BLE (wireless). It must be applied
+        // regardless of whether the keyboard (peripheral) is connected.
+        // Idle (neither USB nor PC-BT link) also shows BLE, per user request.
         let output = match event.0.decide_active() {
+            Some(ConnectionType::Usb) => OutputKind::Usb,
             Some(ConnectionType::Ble) => OutputKind::Ble {
                 profile: event.0.ble.profile,
             },
-            _ => OutputKind::Usb,
+            None => OutputKind::Ble {
+                profile: event.0.ble.profile,
+            },
         };
         self.renderer.apply(DisplayEvent::OutputChanged { output });
         if let OutputKind::Ble { profile } = output {
@@ -236,6 +248,30 @@ impl<'d> BongoDisplay<'d> {
                     LinkState::Searching
                 },
             });
+        }
+    }
+
+    async fn on_peripheral_battery_event(&mut self, event: PeripheralBatteryEvent) {
+        use rmk::types::battery::BatteryStatus;
+        match event.state.0 {
+            BatteryStatus::Available {
+                charge_state,
+                level,
+            } => {
+                if let Some(percent) = level {
+                    self.renderer.apply(DisplayEvent::BatteryChanged {
+                        source: BatterySource::Peripheral(event.id as u8),
+                        percent,
+                        charging: charge_state
+                            == rmk::types::battery::ChargeState::Charging,
+                    });
+                }
+            }
+            BatteryStatus::Unavailable => {
+                self.renderer.apply(DisplayEvent::BatteryUnavailable {
+                    source: BatterySource::Peripheral(event.id as u8),
+                });
+            }
         }
     }
 }
