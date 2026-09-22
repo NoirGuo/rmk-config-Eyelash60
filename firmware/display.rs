@@ -123,7 +123,7 @@ impl<'d> BongoDisplay<'d> {
         )
         .expect("128x64 is supported by rmk-dongle-display");
         renderer.apply(DisplayEvent::OutputChanged {
-            output: OutputKind::Usb,
+            output: OutputKind::Ble { profile: 0 },
         });
         renderer.apply(DisplayEvent::ConnectionChanged {
             state: LinkState::Searching,
@@ -221,11 +221,15 @@ impl<'d> BongoDisplay<'d> {
         // decide_active() reports how the dongle is linked to the host:
         // USB (plugged into the PC) vs BLE (wireless). It must be applied
         // regardless of whether the keyboard (peripheral) is connected.
+        // Idle (neither USB nor PC-BT link) also shows BLE, per user request.
         let output = match event.0.decide_active() {
+            Some(ConnectionType::Usb) => OutputKind::Usb,
             Some(ConnectionType::Ble) => OutputKind::Ble {
                 profile: event.0.ble.profile,
             },
-            _ => OutputKind::Usb,
+            None => OutputKind::Ble {
+                profile: event.0.ble.profile,
+            },
         };
         self.renderer.apply(DisplayEvent::OutputChanged { output });
         if let OutputKind::Ble { profile } = output {
